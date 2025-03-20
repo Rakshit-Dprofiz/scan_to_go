@@ -102,15 +102,15 @@ class CartListInObject {
     if (json['cart'] != null) {
       cart = <Cart>[];
       json['cart'].forEach((v) {
-        cart!.add(new Cart.fromJson(v));
+        cart!.add(Cart.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.cart != null) {
-      data['cart'] = this.cart!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (cart != null) {
+      data['cart'] = cart!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -118,7 +118,7 @@ class CartListInObject {
 
 class Cart {
   String? id;
-  int? total;
+  double? total; // 🔄 Changed from int? to double?
   String? datetime;
   String? orderId;
   List<Items>? items;
@@ -127,25 +127,25 @@ class Cart {
 
   Cart.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    total = json['total'];
+    total = (json['total'] as num?)?.toDouble(); // ✅ Convert dynamically to double
     datetime = json['datetime'];
     orderId = json['order_id'];
     if (json['items'] != null) {
       items = <Items>[];
       json['items'].forEach((v) {
-        items!.add(new Items.fromJson(v));
+        items!.add(Items.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['total'] = this.total;
-    data['datetime'] = this.datetime;
-    data['order_id'] = this.orderId;
-    if (this.items != null) {
-      data['items'] = this.items!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['total'] = total;
+    data['datetime'] = datetime;
+    data['order_id'] = orderId;
+    if (items != null) {
+      data['items'] = items!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -153,22 +153,22 @@ class Cart {
 
 class Items {
   String? item;
-  int? price;
+  double? price; // 🔄 Changed from int? to double?
   int? quantity;
 
   Items({this.item, this.price, this.quantity});
 
   Items.fromJson(Map<String, dynamic> json) {
     item = json['item'];
-    price = json['price'];
+    price = (json['price'] as num?)?.toDouble(); // ✅ Convert dynamically to double
     quantity = json['quantity'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['item'] = this.item;
-    data['price'] = this.price;
-    data['quantity'] = this.quantity;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['item'] = item;
+    data['price'] = price;
+    data['quantity'] = quantity;
     return data;
   }
 }
