@@ -126,7 +126,6 @@
 // import 'package:get/get.dart';
 // import 'package:scan_to_go/core/pages/screens/billing/billing_controller.dart';
 // import 'package:scan_to_go/core/pages/screens/payment_screen/payment_screen.dart';
-// import 'package:scan_to_go/feature/api_services/model/user_list_in_object.dart';
 //
 // class BillingScreen extends StatefulWidget {
 //   const BillingScreen({super.key});
@@ -231,12 +230,281 @@
 
 
 
+// import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+//
+// class BillingScreen extends StatefulWidget {
+//   @override
+//   State<BillingScreen> createState() => _BillingScreenState();
+// }
+//
+// class _BillingScreenState extends State<BillingScreen> {
+//   final BillingController controller = Get.put(BillingController());
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text("Billing Details")),
+//       body: Obx(() {
+//         if (controller.loading.value) {
+//           return Center(child: CircularProgressIndicator());
+//         }
+//
+//         if (controller.cartDetails.value == null ||
+//             controller.cartDetails.value!.cart == null ||
+//             controller.cartDetails.value!.cart!.isEmpty) {
+//           return Center(child: Text("No cart details found"));
+//         }
+//
+//         final cart = controller.cartDetails.value!.cart!.first;
+//
+//         return Padding(
+//           padding: const EdgeInsets.all(16.0),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text("🛒 Cart ID: ${cart.id}",
+//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+//               SizedBox(height: 10),
+//               Text("📅 Date: ${cart.datetime}",
+//                   style: TextStyle(fontSize: 16, color: Colors.grey[700])),
+//               SizedBox(height: 10),
+//               Text("💳 Order ID: ${cart.orderId}",
+//                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+//               SizedBox(height: 10),
+//               Text("💰 Total: ₹${cart.total}",
+//                   style: TextStyle(fontSize: 18, color: Colors.green)),
+//               SizedBox(height: 20),
+//               Text("🛍 Items:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+//               Expanded(
+//                 child: ListView.builder(
+//                   itemCount: cart.items?.length ?? 0,
+//                   itemBuilder: (context, index) {
+//                     final item = cart.items![index];
+//                     return Card(
+//                       margin: EdgeInsets.symmetric(vertical: 5),
+//                       child: ListTile(
+//                         title: Text(item.item ?? "Unknown Item"),
+//                         subtitle: Text("Price: ₹${item.price} | Quantity: ${item.quantity}"),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//               ),
+//             ],
+//           ),
+//         );
+//       }),
+//     );
+//   }
+// }
+
+
+
+
+// import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+// import 'billing_controller.dart';
+//
+// class BillingScreen extends StatefulWidget {
+//   const BillingScreen({super.key});
+//
+//   @override
+//   State<BillingScreen> createState() => _BillingScreenState();
+// }
+//
+// class _BillingScreenState extends State<BillingScreen> {
+//   final BillingController controller = Get.put(BillingController());
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.grey[200],
+//       appBar: AppBar(title: const Text("Bill Summary"), backgroundColor: Colors.teal),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Obx(() {
+//           if (controller.qrData.value.isEmpty) {
+//             return const Center(child: Text("No QR data available."));
+//           }
+//
+//           return Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               _buildBillSummaryCard(),
+//               const SizedBox(height: 20),
+//               _buildProceedButton(),
+//             ],
+//           );
+//         }),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildBillSummaryCard() {
+//     return Card(
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//       elevation: 3,
+//       child: Padding(
+//         padding: const EdgeInsets.all(16),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Text("Cart Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+//             const SizedBox(height: 10),
+//             Text(controller.qrData.value, style: const TextStyle(fontSize: 16)),
+//             const Divider(),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildProceedButton() {
+//     return SizedBox(
+//       width: double.infinity,
+//       child: ElevatedButton(
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor: Colors.teal,
+//           padding: const EdgeInsets.symmetric(vertical: 16),
+//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+//         ),
+//         onPressed: () {
+//           // Future functionality for payment
+//         },
+//         child: const Text("Proceed To Buy", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+//       ),
+//     );
+//   }
+// }
+
+
+// import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+// import 'billing_controller.dart';
+// import 'package:scan_to_go/core/pages/screens/payment_screen/payment_screen.dart';
+//
+// class BillingScreen extends StatefulWidget {
+//   const BillingScreen({super.key});
+//
+//   @override
+//   State<BillingScreen> createState() => _BillingScreenState();
+// }
+//
+// class _BillingScreenState extends State<BillingScreen> {
+//   final BillingController controller = Get.put(BillingController());
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.grey[200],
+//       appBar: AppBar(
+//         title: const Text("Bill Summary"),
+//         backgroundColor: Colors.teal,
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Obx(() {
+//           if (controller.qrData.value.isEmpty) {
+//             return const Center(child: Text("No QR data available."));
+//           }
+//           return SingleChildScrollView(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 _buildBillSummaryCard(),
+//                 const SizedBox(height: 20),
+//                 _buildProceedButton(),
+//               ],
+//             ),
+//           );
+//         }),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildBillSummaryCard() {
+//     return Card(
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+//       elevation: 3,
+//       child: Padding(
+//         padding: const EdgeInsets.all(16),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Text("Cart Details",
+//                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+//             const SizedBox(height: 10),
+//             Obx(() => Text(
+//               "🛒 Cart ID: ${controller.cartId.value}",
+//               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+//             )),
+//             const SizedBox(height: 10),
+//             Obx(() => Text(
+//               "💰 Total: ${controller.totalAmount.value}",
+//               style: const TextStyle(fontSize: 18, color: Colors.green),
+//             )),
+//             const SizedBox(height: 10),
+//             Obx(() => Text(
+//               "📅 Date & Time: ${controller.dateTime.value}",
+//               style: const TextStyle(fontSize: 16, color: Colors.grey),
+//             )),
+//             const SizedBox(height: 10),
+//             const Divider(),
+//             const Text("🛍 Items:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+//             Obx(() => Column(
+//               children: controller.items.map((item) => _buildItemCard(item)).toList(),
+//             )),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildItemCard(String item) {
+//     return Card(
+//       margin: const EdgeInsets.symmetric(vertical: 5),
+//       child: Padding(
+//         padding: const EdgeInsets.all(8),
+//         child: Text(
+//           item,
+//           style: const TextStyle(fontSize: 16),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildProceedButton() {
+//     return ElevatedButton(
+//       onPressed: () {
+//         Get.to(() => const PaymentScreen(title: ''));
+//       },
+//       style: ElevatedButton.styleFrom(
+//         padding: const EdgeInsets.symmetric(vertical: 12),
+//         backgroundColor: Colors.teal,
+//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+//       ),
+//       child: const Center(
+//         child: Text(
+//           "Proceed to Payment",
+//           style: TextStyle(fontSize: 18, color: Colors.white),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:scan_to_go/core/pages/screens/billing/billing_controller.dart';
-import 'package:scan_to_go/feature/api_services/model/user_list_in_object.dart';
+import 'billing_controller.dart';
+import 'package:scan_to_go/core/pages/screens/payment_screen/payment_screen.dart';
 
 class BillingScreen extends StatefulWidget {
+  const BillingScreen({super.key});
+
   @override
   State<BillingScreen> createState() => _BillingScreenState();
 }
@@ -247,57 +515,130 @@ class _BillingScreenState extends State<BillingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Billing Details")),
-      body: Obx(() {
-        if (controller.loading.value) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.cartDetails.value == null ||
-            controller.cartDetails.value!.cart == null ||
-            controller.cartDetails.value!.cart!.isEmpty) {
-          return Center(child: Text("No cart details found"));
-        }
-
-        final cart = controller.cartDetails.value!.cart!.first;
-
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+      backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        title: const Text("Bill Summary"),
+        backgroundColor: Colors.teal,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Obx(() {
+          if (controller.cartId.value.isEmpty) {
+            return const Center(child: Text("No QR data available."));
+          }
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("🛒 Cart ID: ${cart.id}",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
-              Text("📅 Date: ${cart.datetime}",
-                  style: TextStyle(fontSize: 16, color: Colors.grey[700])),
-              SizedBox(height: 10),
-              Text("💳 Order ID: ${cart.orderId}",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
-              Text("💰 Total: ₹${cart.total}",
-                  style: TextStyle(fontSize: 18, color: Colors.green)),
-              SizedBox(height: 20),
-              Text("🛍 Items:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: cart.items?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    final item = cart.items![index];
-                    return Card(
-                      margin: EdgeInsets.symmetric(vertical: 5),
-                      child: ListTile(
-                        title: Text(item.item ?? "Unknown Item"),
-                        subtitle: Text("Price: ₹${item.price} | Quantity: ${item.quantity}"),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              _buildBillSummaryCard(),
+              const Spacer(),
+              _buildProceedButton(),
             ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildBillSummaryCard() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Card Details",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
+            // Order Time
+            Obx(() => Text(
+              "Order Time: ${controller.dateTime.value}",
+              style: const TextStyle(fontSize: 16, color: Colors.black),
+            )),
+
+            const SizedBox(height: 10),
+
+            // Product Items Section
+            const Text(
+              "Product Items :",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 5),
+
+            Obx(() => Column(
+              children: controller.items.map((item) => _buildItemRow(item)).toList(),
+            )),
+
+            const Divider(),
+
+            // Total Amount
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Total Amount",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Obx(() => Text(
+                  "₹${controller.totalAmount.value}",
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                )),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemRow(Map<String, dynamic> item) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            item['name'],
+            style: const TextStyle(fontSize: 16),
           ),
-        );
-      }),
+          Text(
+            "₹${item['price']}",
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProceedButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          Get.to(() => const PaymentScreen(title: ''));
+        },
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          backgroundColor: Colors.teal,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: const Text(
+          "Proceed To Pay",
+          style: TextStyle(fontSize: 18, color: Colors.purple),
+        ),
+      ),
     );
   }
 }
+
+
+
+
+
+
+
+

@@ -1,12 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-
 import '../utils/print_value.dart';
 import '../utils/toast_message.dart';
-
 
 class HttpHelper {
 // Get API Handle
