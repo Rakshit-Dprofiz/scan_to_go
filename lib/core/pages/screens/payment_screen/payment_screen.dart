@@ -671,6 +671,246 @@
 
 // ==================== original code ====================
 
+// import 'package:flutter/material.dart';
+// import 'package:razorpay_flutter/razorpay_flutter.dart';
+//
+// class PaymentScreen extends StatefulWidget {
+//   const PaymentScreen({super.key, required this.title});
+//
+//   final String title;
+//
+//   @override
+//   State<PaymentScreen> createState() => _PaymentScreenState();
+// }
+//
+// class _PaymentScreenState extends State<PaymentScreen> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(widget.title),
+//       ),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: <Widget>[
+//             const Text(
+//               'Pay with Razorpay',
+//             ),
+//             ElevatedButton(
+//                 onPressed: () {
+//                   Razorpay razorpay = Razorpay();
+//                   var options = {
+//                     'key': 'rzp_test_00c36kD21CoCL3',
+//                     'amount': 100 * 100,
+//                     'name': 'Acme Corp.',
+//                     'description': 'Fine T-Shirt',
+//                     'retry': {'enabled': true, 'max_count': 1},
+//                     'send_sms_hash': true,
+//                     'prefill': {
+//                       'contact': '8888888888',
+//                       'email': 'test@razorpay.com'
+//                     },
+//                     'external': {
+//                       'wallets': ['paytm']
+//                     }
+//                   };
+//                   razorpay.on(
+//                       Razorpay.EVENT_PAYMENT_ERROR, handlePaymentErrorResponse);
+//                   razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS,
+//                       handlePaymentSuccessResponse);
+//                   razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET,
+//                       handleExternalWalletSelected);
+//                   razorpay.open(options);
+//                 },
+//                 child: const Text("Pay with Razorpay")),
+//           ],
+//         ),
+//       ), // This trailing comma makes auto-formatting nicer for build methods.
+//     );
+//   }
+//
+//   void handlePaymentErrorResponse(PaymentFailureResponse response) {
+//    /* * PaymentFailureResponse contains three values:
+//     * 1. Error Code
+//     * 2. Error Description
+//     * 3. Metadata
+//     * */
+//
+//     showAlertDialog(context, "Payment Failed",
+//         "Code: ${response.code}\nDescription: ${response.message}\nMetadata:${response.error.toString()}");
+//   }
+//
+//   void handlePaymentSuccessResponse(PaymentSuccessResponse response) {
+//     // * Payment Success Response contains three values:
+//     // * 1. Order ID
+//     // * 2. Payment ID
+//     // * 3. Signature
+//     // *
+//
+//     showAlertDialog(
+//       context,
+//       "Payment Successful",
+//       "Payment ID: ${response.paymentId}",
+//     );
+//   }
+//
+//   void handleExternalWalletSelected(ExternalWalletResponse response) {
+//     showAlertDialog(
+//         context, "External Wallet Selected", "${response.walletName}");
+//   }
+//
+//   void showAlertDialog(BuildContext context, String title, String message) {
+//     // set up the buttons
+//     Widget continueButton = ElevatedButton(
+//       child: const Text("Continue"),
+//       onPressed: () {},
+//     );
+//     // set up the AlertDialog
+//     AlertDialog alert = AlertDialog(
+//       title: Text(title),
+//       content: Text(message),
+//     );
+//     // show the dialog
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return alert;
+//       },
+//     );
+//   }
+// }
+
+// ==================== original code ====================
+
+
+//
+// import 'package:flutter/material.dart';
+// import 'package:razorpay_flutter/razorpay_flutter.dart';
+//
+// class PaymentScreen extends StatefulWidget {
+//   const PaymentScreen({super.key, required this.title});
+//
+//   final String title;
+//
+//   @override
+//   State<PaymentScreen> createState() => _PaymentScreenState();
+// }
+//
+// class _PaymentScreenState extends State<PaymentScreen> {
+//   late Razorpay _razorpay; // Declare Razorpay instance
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _razorpay = Razorpay();
+//
+//     // Listen for Razorpay events
+//     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentErrorResponse);
+//     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccessResponse);
+//     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, handleExternalWalletSelected);
+//   }
+//
+//   @override
+//   void dispose() {
+//     _razorpay.clear(); // Dispose Razorpay instance when screen is closed
+//     super.dispose();
+//   }
+//
+//   void startPayment() {
+//     var options = {
+//       'key': 'rzp_test_00c36kD21CoCL3', // Test mode API key
+//       'amount': 100 * 100, // Amount in paise (₹1.00)
+//       'currency': 'INR',
+//       'name': 'Acme Corp.',
+//       'description': 'Fine T-Shirt',
+//       'retry': {'enabled': true, 'max_count': 1},
+//       'send_sms_hash': true,
+//       'prefill': {
+//         'contact': '8888888888',
+//         'email': 'test@razorpay.com',
+//       },
+//       'external': {
+//         'wallets': ['paytm'],
+//       }
+//     };
+//
+//     try {
+//       _razorpay.open(options);
+//     } catch (e) {
+//       debugPrint("Error: $e");
+//     }
+//   }
+//
+//   void handlePaymentErrorResponse(PaymentFailureResponse response) {
+//     debugPrint("Payment Failed: ${response.message}");
+//     showAlertDialog(
+//       context,
+//       "Payment Failed",
+//       "Code: ${response.code}\nDescription: ${response.message}\nMetadata: ${response.error.toString()}",
+//     );
+//   }
+//
+//   void handlePaymentSuccessResponse(PaymentSuccessResponse response) {
+//     debugPrint("Payment Success: ${response.paymentId}");
+//     showAlertDialog(
+//       context,
+//       "Payment Successful",
+//       "Payment ID: ${response.paymentId}",
+//     );
+//   }
+//
+//   void handleExternalWalletSelected(ExternalWalletResponse response) {
+//     debugPrint("External Wallet Selected: ${response.walletName}");
+//     showAlertDialog(
+//       context,
+//       "External Wallet Selected",
+//       "Wallet: ${response.walletName}",
+//     );
+//   }
+//
+//   void showAlertDialog(BuildContext context, String title, String message) {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text(title),
+//           content: Text(message),
+//           actions: [
+//             ElevatedButton(
+//               onPressed: () => Navigator.pop(context),
+//               child: const Text("OK"),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text(widget.title)),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: <Widget>[
+//             const Text('Pay with Razorpay'),
+//             ElevatedButton(
+//               onPressed: startPayment,
+//               child: const Text("Pay with Razorpay"),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+
+// payment code is commented
+/*
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -731,11 +971,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void handlePaymentErrorResponse(PaymentFailureResponse response) {
-   /* * PaymentFailureResponse contains three values:
+    */
+/* * PaymentFailureResponse contains three values:
     * 1. Error Code
     * 2. Error Description
     * 3. Metadata
-    * */
+    * *//*
+
 
     showAlertDialog(context, "Payment Failed",
         "Code: ${response.code}\nDescription: ${response.message}\nMetadata:${response.error.toString()}");
@@ -779,7 +1021,4 @@ class _PaymentScreenState extends State<PaymentScreen> {
       },
     );
   }
-}
-
-// ==================== original code ====================
-
+}*/

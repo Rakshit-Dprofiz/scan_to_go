@@ -47,7 +47,6 @@ dependencies:
   url_launcher: ^6.3.1
   dropdown_search: ^6.0.2
   #qr_code_scanner: ^1.0.1
-  razorpay_flutter: ^1.4.0
   http:
   encrypt: ^5.0.3
 
@@ -56,6 +55,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.14.3"
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -78,6 +83,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - assets/google_logo.png
+     - assets/logo.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -132,7 +132,13 @@
 // }
 
 // -------------- original code ---------------------
-import 'package:flutter/material.dart';
+
+
+
+
+// ------------- code before the supabase part sunday -------------- original code ---------------------
+
+/*import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math';
 
@@ -143,6 +149,12 @@ class PaymentController extends GetxController {
   void onInit() {
     super.onInit();
     _loadDummyData();
+  }
+
+  // ✅ Adds new payment to history
+  void addPayment(Map<String, dynamic> payment) {
+    paymentHistory.insert(0, payment); // Adds new entry at the top
+    print("✅ Payment added to history: $payment");
   }
 
   void _loadDummyData() {
@@ -268,7 +280,172 @@ class PaymentHistoryCard extends StatelessWidget {
       ),
     );
   }
+}*/
+// ------------- code before the supabase part sunday -------------- original code ---------------------
+
+
+
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class PaymentController extends GetxController {
+  var paymentHistory = <Map<String, dynamic>>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchPaymentHistory(); // Fetch actual payment data on initialization
+  }
+
+  // ✅ Fetch payment history from Supabase
+  Future<void> fetchPaymentHistory() async {
+    print("🔄 Fetching payment history from Supabase...");
+
+    final response = await Supabase.instance.client
+        .from('cart_details')
+        .select()
+        .order('datetime', ascending: false); // Order by latest
+
+    if (response.isNotEmpty) {
+      print("✅ Fetched ${response.length} payment records");
+      paymentHistory.value = response.map((data) {
+        return {
+          'order_id': data['order_id'],
+          'datetime': data['datetime'],
+          'total': data['total'].toStringAsFixed(2),
+          'items': data['items'] ?? [],
+        };
+      }).toList();
+    } else {
+      print("⚠️ No payment history found.");
+    }
+  }
+
+  // ✅ Adds new payment to history
+  void addPayment(Map<String, dynamic> payment) async {
+    print("📝 Adding payment to Supabase: $payment");
+
+    final response = await Supabase.instance.client.from('cart_details').insert(payment);
+
+    if (response == null) {
+      print("✅ Payment added successfully!");
+      fetchPaymentHistory(); // Refresh history after adding
+    } else {
+      print("❌ Failed to add payment: $response");
+    }
+  }
 }
 
-// -------------- original code ---------------------
+
+class PaymentHistoryScreen extends StatefulWidget {
+  @override
+  State<PaymentHistoryScreen> createState() => _PaymentHistoryScreenState();
+}
+
+class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
+  final PaymentController controller = Get.put(PaymentController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        title: Text("Payment History"),
+        backgroundColor: Colors.teal,
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Obx(() => ListView.builder(
+          itemCount: controller.paymentHistory.length,
+          itemBuilder: (context, index) {
+            return PaymentHistoryCard(payment: controller.paymentHistory[index]);
+          },
+        )),
+      ),
+    );
+  }
+}
+
+class PaymentHistoryCard extends StatelessWidget {
+  final Map<String, dynamic> payment;
+  PaymentHistoryCard({required this.payment});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showPaymentDetails(context, payment),
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 3,
+        margin: EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Order ID: ${payment['order_id']}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 5),
+              Text("Order Time: ${payment['datetime']}"),
+              SizedBox(height: 5),
+              Text("Total Amount: ₹${payment['total']}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.teal)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showPaymentDetails(BuildContext context, Map<String, dynamic> payment) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          title: Text("Payment Details"),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Order ID: ${payment['order_id']}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                Text("Order Time: ${payment['datetime']}"),
+                SizedBox(height: 10),
+                Text("Products:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ...payment['items'].map<Widget>((item) => _buildRow(item['name'], "₹${item['price']}")),
+                Divider(),
+                _buildRow("Total Amount", "₹${payment['total']}", isBold: true, fontSize: 18),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildRow(String label, String value, {bool isBold = false, double fontSize = 16}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontSize: fontSize, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+          Text(value, style: TextStyle(fontSize: fontSize, fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: Colors.black)),
+        ],
+      ),
+    );
+  }
+}
+
+
 

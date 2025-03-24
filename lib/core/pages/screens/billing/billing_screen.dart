@@ -495,7 +495,7 @@
 // }
 
 
-
+// ------------- code before the supabase part sunday
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -619,7 +619,15 @@ class _BillingScreenState extends State<BillingScreen> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Get.to(() => const PaymentScreen(title: ''));
+          // Get.to(() => const PaymentScreen(title: ''));
+          Get.snackbar(
+            "Coming Soon",
+            "Payment feature is under development. Stay tuned!",
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.teal,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 4),
+          );
         },
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -634,11 +642,3 @@ class _BillingScreenState extends State<BillingScreen> {
     );
   }
 }
-
-
-
-
-
-
-
-
