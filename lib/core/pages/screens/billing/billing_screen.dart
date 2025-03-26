@@ -500,7 +500,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'billing_controller.dart';
-import 'package:scan_to_go/core/pages/screens/payment_screen/payment_screen.dart';
 
 class BillingScreen extends StatefulWidget {
   const BillingScreen({super.key});

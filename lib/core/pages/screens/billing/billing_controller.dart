@@ -411,77 +411,77 @@
 
 // ------------- code before the supabase part sunday
 
-// import 'package:get/get.dart';
-//
-// class BillingController extends GetxController {
-//   var cartId = ''.obs;
-//   var totalAmount = ''.obs;
-//   var dateTime = ''.obs;
-//   var items = <Map<String, dynamic>>[].obs; // List of item maps
-//
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     if (Get.arguments != null && Get.arguments['qrData'] != null) {
-//       parseQRData(Get.arguments['qrData']);
-//     } else {
-//       print("⚠️ No QR data received");
-//     }
-//   }
-//
-//   void parseQRData(String qrData) {
-//     print("📱 Scanned QR Data received:\n$qrData");
-//
-//     List<String> lines = qrData.split("\n");
-//     String? lastItemName;
-//     String? lastItemPrice;
-//
-//     for (var line in lines) {
-//       line = line.trim();
-//
-//       if (line.startsWith("Cart Id:")) {
-//         cartId.value = line.split(":")[1].trim();
-//       } else if (line.startsWith("Total:")) {
-//         totalAmount.value = line.split(":")[1].trim();
-//       } else if (line.startsWith("Date & Time:")) {
-//         dateTime.value = line.split(":")[1].trim();
-//       } else if (line.contains(" - Rs.")) {
-//         // Extract product name and price
-//         List<String> parts = line.split(" - Rs.");
-//         lastItemName = parts[0].trim();
-//         lastItemPrice = parts[1].trim();
-//       } else if (line.startsWith("Quantity-") && lastItemName != null && lastItemPrice != null) {
-//         // Extract quantity and store the item
-//         String quantity = line.split("-")[1].trim();
-//         items.add({
-//           "name": lastItemName,
-//           "price": lastItemPrice,
-//           "quantity": quantity,
-//         });
-//
-//         // Reset for next item
-//         lastItemName = null;
-//         lastItemPrice = null;
-//       }
-//     }
-//
-//     // Ensure default values if data is missing
-//     if (cartId.isEmpty) cartId.value = "Unknown";
-//     if (totalAmount.isEmpty) totalAmount.value = "N/A";
-//     if (dateTime.isEmpty) dateTime.value = "N/A";
-//
-//     // Print extracted values for debugging
-//     print("🛒 Extracted Cart ID: ${cartId.value}");
-//     print("💰 Total Amount: ${totalAmount.value}");
-//     print("📅 Date & Time: ${dateTime.value}");
-//     print("🛍 Items List:");
-//     for (var item in items) {
-//       print("   - ${item['name']} | Price: Rs. ${item['price']} | Quantity: ${item['quantity']}");
-//     }
-//   }
-// }
+import 'package:get/get.dart';
 
-// ------------- code before the supabase part sunday
+class BillingController extends GetxController {
+  var cartId = ''.obs;
+  var totalAmount = ''.obs;
+  var dateTime = ''.obs;
+  var items = <Map<String, dynamic>>[].obs; // List of item maps
+
+  @override
+  void onInit() {
+    super.onInit();
+    if (Get.arguments != null && Get.arguments['qrData'] != null) {
+      parseQRData(Get.arguments['qrData']);
+    } else {
+      print("⚠️ No QR data received");
+    }
+  }
+
+  void parseQRData(String qrData) {
+    print("📱 Scanned QR Data received:\n$qrData");
+
+    List<String> lines = qrData.split("\n");
+    String? lastItemName;
+    String? lastItemPrice;
+
+    for (var line in lines) {
+      line = line.trim();
+
+      if (line.startsWith("Cart Id:")) {
+        cartId.value = line.split(":")[1].trim();
+      } else if (line.startsWith("Total:")) {
+        totalAmount.value = line.split(":")[1].trim();
+      } else if (line.startsWith("Date & Time:")) {
+        dateTime.value = line.split(":")[1].trim();
+      } else if (line.contains(" - Rs.")) {
+        // Extract product name and price
+        List<String> parts = line.split(" - Rs.");
+        lastItemName = parts[0].trim();
+        lastItemPrice = parts[1].trim();
+      } else if (line.startsWith("Quantity-") && lastItemName != null && lastItemPrice != null) {
+        // Extract quantity and store the item
+        String quantity = line.split("-")[1].trim();
+        items.add({
+          "name": lastItemName,
+          "price": lastItemPrice,
+          "quantity": quantity,
+        });
+
+        // Reset for next item
+        lastItemName = null;
+        lastItemPrice = null;
+      }
+    }
+
+    // Ensure default values if data is missing
+    if (cartId.isEmpty) cartId.value = "Unknown";
+    if (totalAmount.isEmpty) totalAmount.value = "N/A";
+    if (dateTime.isEmpty) dateTime.value = "N/A";
+
+    // Print extracted values for debugging
+    print("🛒 Extracted Cart ID: ${cartId.value}");
+    print("💰 Total Amount: ${totalAmount.value}");
+    print("📅 Date & Time: ${dateTime.value}");
+    print("🛍 Items List:");
+    for (var item in items) {
+      print("   - ${item['name']} | Price: Rs. ${item['price']} | Quantity: ${item['quantity']}");
+    }
+  }
+}
+
+// ------------- code before the supabase part sunday--------------------------
 
 
 
@@ -595,13 +595,12 @@ class BillingController extends GetxController {
 }*/
 
 
+// ----------------------------------------------------------------------------
 
-
-import 'package:get/get.dart';
+/*import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../payment_history/page/payment_history_screen.dart';
-import '../payment_screen/payment_screen.dart';
 
 class BillingController extends GetxController {
   var cartId = ''.obs;
@@ -717,4 +716,4 @@ class BillingController extends GetxController {
     // Navigate to Payment Screen
     // Get.to(() => PaymentScreen(title: '',));
   }
-}
+}*/

@@ -36,12 +36,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/pages/screens/billing/billing_screen.dart';
 import '../core/pages/screens/home/home_screen.dart';
-import '../core/pages/screens/payment_history/page/payment_history_screen.dart';
-import '../core/pages/screens/payment_screen/payment_screen.dart';
-import '../core/pages/screens/profile/profile.dart';
-import '../core/pages/screens/profile/qr_scanner.dart';
 import '../core/pages/services/login_screen.dart';
 
 class AuthGate extends StatelessWidget {

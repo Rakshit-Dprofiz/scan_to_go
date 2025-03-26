@@ -42,7 +42,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:scan_to_go/feature/api_services/model/user_list_in_object.dart';
 
-class RestClient { 
+class RestClient {
   static Future<CartListInObject> getCartListInObject(String cartId) async {
     final String url = "https://smapca.onrender.com/cart/$cartId";
 
@@ -66,5 +66,4 @@ class RestClient {
       throw Exception("Error fetching cart: $error");
     }
   }
-
 }
