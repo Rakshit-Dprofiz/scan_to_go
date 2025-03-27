@@ -38,6 +38,7 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth/auth_gate.dart';
+import 'core/pages/screens/billing/billing_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       home: const AuthGate(),
+      // home:  BillingScreen(),
     );
   }
 }

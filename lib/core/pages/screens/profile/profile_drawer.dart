@@ -53,6 +53,7 @@ import 'package:scan_to_go/core/pages/screens/home/home_screen.dart';
 import 'package:scan_to_go/core/pages/screens/profile/profile.dart';
 
 import '../payment_history/page/payment_history_screen.dart';
+import '../privacy_poilcy/privacy_page.dart';
 
 class ProfileDrawer extends StatelessWidget {
   const ProfileDrawer({
@@ -114,6 +115,13 @@ class ProfileDrawer extends StatelessWidget {
             title: Text('Payment History'),
             onTap: () {
               Get.to(() => PaymentHistoryScreen());
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.policy),
+            title: Text('Privacy Policy'),
+            onTap: () {
+              Get.to(() => PrivacyPolicyPage());
             },
           ),
         ],

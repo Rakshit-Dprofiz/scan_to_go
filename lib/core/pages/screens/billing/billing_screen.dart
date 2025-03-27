@@ -497,6 +497,10 @@
 
 // ------------- code before the supabase part sunday
 
+
+
+
+/*
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'billing_controller.dart';
@@ -641,3 +645,90 @@ class _BillingScreenState extends State<BillingScreen> {
     );
   }
 }
+*/
+
+
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../payment_screen/payment_screen.dart';
+import 'billing_controller.dart';
+
+class BillingScreen extends StatelessWidget {
+  final BillingController controller = Get.put(BillingController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Billing Summary'), centerTitle: true, backgroundColor: Colors.green),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildBillingInfo("🛒 Trolly ID", controller.trollyId.value),
+              _buildBillingInfo("📦 Order ID", controller.orderId.value),
+              _buildBillingInfo("🕒 Date & Time", controller.datetime.value),
+              _buildBillingInfo("💰 Total", "₹${controller.total.value.toStringAsFixed(2)}"),
+              const SizedBox(height: 16),
+              const Text("🛍 Items:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: controller.items.length,
+                  itemBuilder: (context, index) {
+                    var item = controller.items[index];
+                    return _buildItemTile(
+                      item["item"],
+                      item["price"],
+                      item["quantity"],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    // Get.to(PaymentScreen(title: '',));
+                  },
+                  child: const Text("Proceed to Payment", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  /// Builds a row displaying billing information.
+  Widget _buildBillingInfo(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Text("$label: $value", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  /// Builds a tile for displaying each item.
+  Widget _buildItemTile(String name, double price, int quantity) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: ListTile(
+        title: Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        subtitle: Text("💵 Price: ₹${price.toStringAsFixed(2)}  |  🛒 Quantity: $quantity"),
+      ),
+    );
+  }
+}
+
+
