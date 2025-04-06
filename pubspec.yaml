@@ -48,10 +48,16 @@ dependencies:
   dropdown_search: ^6.0.2
   #qr_code_scanner: ^1.0.1
   http:
-  encrypt: ^5.0.3
   razorpay_flutter: ^1.4.0
-
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  path_provider: ^2.1.5
+  permission_handler: ^11.4.0
+  open_file: ^3.5.10
   qr_code_scanner_plus:
+  package_info_plus: ^8.3.0
+
+  nfc_manager: ^3.5.0
 
 dev_dependencies:
   flutter_test:

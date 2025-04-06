@@ -671,7 +671,7 @@
 
 // ==================== original code ====================
 
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -731,11 +731,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void handlePaymentErrorResponse(PaymentFailureResponse response) {
-   /* * PaymentFailureResponse contains three values:
+ *//* PaymentFailureResponse contains three values:
     * 1. Error Code
     * 2. Error Description
     * 3. Metadata
-    * */
+    *//*
+
 
     showAlertDialog(context, "Payment Failed",
         "Code: ${response.code}\nDescription: ${response.message}\nMetadata:${response.error.toString()}");
@@ -779,7 +780,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       },
     );
   }
-}
+}*/
 
 // ==================== original code ====================
 
@@ -1022,3 +1023,137 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 }*/
+
+
+// new
+
+// working code
+// import 'package:flutter/material.dart';
+// import 'package:scan_to_go/core/pages/screens/payment_screen/services/controllers/payment_controller.dart';
+//
+// class PaymentScreen extends StatelessWidget {
+//   final RazorpayService _razorpayService = RazorpayService();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text("Payment")),
+//       body: Center(
+//         child: ElevatedButton(
+//           onPressed: () {
+//             _razorpayService.openPaymentGateway(500); // Example ₹500 payment
+//           },
+//           child: Text("Pay ₹500"),
+//         ),
+//       ),
+//     );
+//   }
+// }
+// working code
+
+// // PaymentScreen.dart
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import '../billing/billing_controller.dart';
+import 'services/controllers/payment_controller.dart'; // if needed
+
+class PaymentScreen extends StatefulWidget {
+  @override
+  _PaymentScreenState createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  late RazorpayService _razorpayService;
+  final BillingController billingController = Get.find<BillingController>();
+  String? transactionId;
+  // String orderId; // ✅ Define orderId variable
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpayService = RazorpayService(
+      onPaymentSuccess: (paymentId) {
+        setState(() {
+          transactionId = paymentId;
+        });
+
+        if (paymentId != null) {
+          print("✅ Successfully received Payment ID: $paymentId");
+        } else {
+          print("⚠️ Payment completed but Payment ID is null");
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _razorpayService.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double amount = billingController.total.value;
+    return Scaffold(
+      appBar: AppBar(title: Text("Payment")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            transactionId != null
+                ? Text("Payment Successful! ID: $transactionId")
+                : Text("No Payment Yet"),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                if (amount > 0) {
+                  // _razorpayService.openPaymentGateway(amount);
+
+
+                  // String orderId = billingController.orderId.value;
+                  //
+                  // _razorpayService.openPaymentGateway(amount, orderId);
+
+
+                  print("💰 Amount Passed: ₹$amount");
+                  // print("💰 order Id: ₹$orderId ");
+
+                    Razorpay razorpay = Razorpay();
+
+                    var options = {
+                      'key': 'rzp_test_kz6NrKGGxbnS9n',
+                      'amount': 100,
+                      'name': 'Acme Corp.',
+                      'description': 'Fine T-Shirt',
+                      'retry': {'enabled': true, 'max_count': 1},
+                      'send_sms_hash': true,
+                      'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'},
+                      'external': {
+                        'wallets': ['paytm']
+                      }
+                    };
+                    // razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentErrorResponse);
+                    // razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccessResponse);
+                    // razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, handleExternalWalletSelected);
+                    razorpay.open(options);
+
+
+                } else {
+                  Get.snackbar(
+                    "Error",
+                    "Invalid payment amount",
+                    backgroundColor: Colors.red,
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                }
+              },
+              child: Text("Pay ₹${amount.toStringAsFixed(2)}"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

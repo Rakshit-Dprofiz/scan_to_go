@@ -183,9 +183,6 @@
 //   }
 // }
 
-
-
-
 // new
 
 // import 'dart:convert';
@@ -272,12 +269,6 @@
 //     );
 //   }
 // }
-
-
-
-
-
-
 
 //------------------ old file without changes before the supabase part sunday  -------------
 
@@ -458,9 +449,7 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
 }*/
 //------------------ old file without changes before the supabase part sunday  -------------
 
-
 // new changes began
-
 
 // ------------------- previous file -----------------------------
 // import 'dart:convert';
@@ -664,8 +653,6 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
 
 // ------------------- previous file -----------------------------
 
-
-
 // ----------------------------------------- this file have the post api -----------------------------------------
 // Keeping original UI and structure intact
 /*import 'dart:convert';
@@ -817,10 +804,6 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
   }
 }*/
 // ----------------------------------------- this file have the post api -----------------------------------------
-
-
-
-
 
 // working qr code fast version
 /*import 'dart:convert';
@@ -1153,10 +1136,164 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
   }
 }*/
 
+// // 🏎️ Fast QR Code Processing - Optimized Version
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+// import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
+// import 'package:scan_to_go/core/pages/screens/billing/billing_screen.dart';
+// import '../../../../feature/api_services/network_manager/http_helper.dart';
+//
+// class QRProcessingScreen extends StatefulWidget {
+//   const QRProcessingScreen({super.key});
+//
+//   @override
+//   QRProcessingScreenState createState() => QRProcessingScreenState();
+// }
+//
+// class QRProcessingScreenState extends State<QRProcessingScreen> {
+//   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+//   QRViewController? controller;
+//   bool isLoading = false;
+//   String? actualCode;
+//   String? trolly_id;
+//   String? encrypted_string;
+//   int lastScanTime = 0;
+//
+//   @override
+//   void dispose() {
+//     controller?.dispose();
+//     super.dispose();
+//   }
+//
+//   /// Called when QR scanner detects a new code
+//   void _onQRViewCreated(QRViewController qrController) {
+//     controller = qrController;
+//     controller?.scannedDataStream.listen((scanData) {
+//       final currentTime = DateTime.now().millisecondsSinceEpoch;
+//
+//       // Debounce to prevent duplicate scans within 2 seconds
+//       if (!isLoading && (currentTime - lastScanTime) > 2000) {
+//         lastScanTime = currentTime;
+//
+//         if (scanData.code == null || scanData.code!.isEmpty) {
+//           debugPrint("⚠️ QR Code is empty or invalid.");
+//           return;
+//         }
+//
+//         Future.delayed(Duration.zero, () => controller?.pauseCamera());
+//         setState(() {
+//           actualCode = scanData.code;
+//           isLoading = true;
+//         });
+//
+//         debugPrint("✅ Scanned QR Code: $actualCode");
+//         _extractQRData(actualCode!);
+//         _sendDataToAPI();
+//       }
+//     });
+//   }
+//
+//   /// Extracts Trolly ID and Encrypted Data from QR Code
+//   void _extractQRData(String qrData) {
+//     debugPrint("🔍 Extracting data from QR Code...");
+//
+//     List<String> parts = qrData.split(':');
+//     if (parts.length >= 2) {
+//       trolly_id = parts[0];
+//       encrypted_string = parts.sublist(1).join(':'); // Preserve additional colons
+//       debugPrint("🛒 Extracted Trolly ID: $trolly_id");
+//       debugPrint("🔐 Extracted Encoded Data: $encrypted_string");
+//     } else {
+//       debugPrint("❌ Invalid QR Code format! Expected: 'trolly_id:encrypted_string'");
+//     }
+//   }
+//
+//   /// Sends extracted QR data to API asynchronously
+//   Future<void> _sendDataToAPI() async {
+//     if (trolly_id == null || encrypted_string == null) {
+//       debugPrint("❌ Error: Missing required data.");
+//       return;
+//     }
+//
+//     String apiUrl = "https://smapca.onrender.com/cart/scan";
+//     Map<String, dynamic> requestBody = {
+//       "trolly_id": trolly_id,
+//       "encrypted_string": encrypted_string
+//     };
+//
+//     debugPrint("📡 Sending QR data to API...");
+//     try {
+//       var response = await HttpHelper().post(url: apiUrl, requestBody: jsonEncode(requestBody));
+//
+//       if (response != null) {
+//         debugPrint("✅ API Response: $response");
+//         _navigateToBillingScreen(response);
+//       } else {
+//         debugPrint("❌ API call failed.");
+//       }
+//     } catch (e) {
+//       debugPrint("❌ API Error: $e");
+//     }
+//   }
+//
+//   /// Navigates to Billing Screen with structured data
+//   void _navigateToBillingScreen(Map<String, dynamic> response) {
+//     if (response["success"] == true) {
+//       Map<String, dynamic> cartData = response["cartData"] ?? {};
+//
+//       debugPrint("✅ Extracted Billing Data:");
+//       debugPrint("Trolly ID: $trolly_id");
+//       debugPrint("Order ID: ${response["order_id"]}");
+//       debugPrint("Total: ${cartData["total"]}");
+//       debugPrint("Date & Time: ${cartData["datetime"]}");
+//       debugPrint("Items: ${cartData["items"]}");
+//
+//       Get.to(() => BillingScreen(), arguments: {
+//         "trolly_id": trolly_id,
+//         "order_id": response["order_id"] ?? "N/A",
+//         "items": cartData["items"] ?? [],
+//         "total": cartData["total"] ?? 0.0,
+//         "datetime": cartData["datetime"] ?? "N/A"
+//       });
+//     } else {
+//       debugPrint("❌ Failed to get valid API response.");
+//     }
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text('QR Scanner'), centerTitle: true, backgroundColor: Colors.green),
+//       body: Column(
+//         children: [
+//           Expanded(
+//             flex: 5,
+//             child: Container(
+//               margin: const EdgeInsets.all(10),
+//               decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.green, width: 2)),
+//               child: ClipRRect(
+//                 borderRadius: BorderRadius.circular(16),
+//                 child: QRView(key: qrKey, onQRViewCreated: _onQRViewCreated),
+//               ),
+//             ),
+//           ),
+//           Expanded(
+//             flex: 1,
+//             child: Center(
+//               child: Padding(
+//                 padding: const EdgeInsets.symmetric(horizontal: 16),
+//                 child: Text(actualCode ?? 'Scan a QR code', textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+//
 
-
-
-// 🏎️ Fast QR Code Processing - Optimized Version
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -1178,7 +1315,15 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
   String? actualCode;
   String? trolly_id;
   String? encrypted_string;
+  String? user_id; // ✅ Added user_id
   int lastScanTime = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    user_id = Get.arguments?["user_id"]; // ✅ Receiving user_id from HomeScreen
+    debugPrint("👤 Received User ID in QRProcessingScreen: $user_id");
+  }
 
   @override
   void dispose() {
@@ -1221,30 +1366,39 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
     List<String> parts = qrData.split(':');
     if (parts.length >= 2) {
       trolly_id = parts[0];
-      encrypted_string = parts.sublist(1).join(':'); // Preserve additional colons
+      encrypted_string =
+          parts.sublist(1).join(':'); // Preserve additional colons
       debugPrint("🛒 Extracted Trolly ID: $trolly_id");
       debugPrint("🔐 Extracted Encoded Data: $encrypted_string");
     } else {
-      debugPrint("❌ Invalid QR Code format! Expected: 'trolly_id:encrypted_string'");
+      debugPrint(
+          "❌ Invalid QR Code format! Expected: 'trolly_id:encrypted_string'");
     }
   }
 
   /// Sends extracted QR data to API asynchronously
   Future<void> _sendDataToAPI() async {
-    if (trolly_id == null || encrypted_string == null) {
+    if (trolly_id == null || encrypted_string == null || user_id == null) {
       debugPrint("❌ Error: Missing required data.");
       return;
     }
 
+    setState(() {
+      isLoading = true;
+    });
+
     String apiUrl = "https://smapca.onrender.com/cart/scan";
     Map<String, dynamic> requestBody = {
       "trolly_id": trolly_id,
-      "encrypted_string": encrypted_string
+      "encrypted_string": encrypted_string,
+      "user_id": user_id, // ✅ Passing user_id in API request
     };
 
     debugPrint("📡 Sending QR data to API...");
+     debugPrint("👤 User ID: $user_id"); // ✅ Logging user_id
     try {
-      var response = await HttpHelper().post(url: apiUrl, requestBody: jsonEncode(requestBody));
+      var response = await HttpHelper()
+          .post(url: apiUrl, requestBody: jsonEncode(requestBody));
 
       if (response != null) {
         debugPrint("✅ API Response: $response");
@@ -1254,6 +1408,10 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
       }
     } catch (e) {
       debugPrint("❌ API Error: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -1273,7 +1431,7 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
         "trolly_id": trolly_id,
         "order_id": response["order_id"] ?? "N/A",
         "items": cartData["items"] ?? [],
-        "total": cartData["total"] ?? 0.0,
+        "total": (cartData["total"] ?? 0).toDouble(), // Fixing int to double issue
         "datetime": cartData["datetime"] ?? "N/A"
       });
     } else {
@@ -1284,32 +1442,51 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('QR Scanner'), centerTitle: true, backgroundColor: Colors.green),
-      body: Column(
+      appBar: AppBar(
+          title: const Text('QR Scanner'),
+          centerTitle: true,
+          backgroundColor: Colors.green),
+      body: Stack(
         children: [
-          Expanded(
-            flex: 5,
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.green, width: 2)),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: QRView(key: qrKey, onQRViewCreated: _onQRViewCreated),
+          Column(
+            children: [
+              Expanded(
+                flex: 5,
+                child: Container(
+                  margin: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.green, width: 2)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child:
+                        QRView(key: qrKey, onQRViewCreated: _onQRViewCreated),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(actualCode ?? 'Scan a QR code',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.6),
+              child: const Center(
+                child: CircularProgressIndicator(color: Colors.white),
               ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(actualCode ?? 'Scan a QR code', textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 }
-

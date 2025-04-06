@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -20,8 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final User? user = Supabase.instance.client.auth.currentUser;
-    final String email = user?.email ?? "No Email";
+    final String personalemail = user?.email ?? "No Email";
     final String name = user?.userMetadata?['full_name'] ?? "No Name";
+    final String user_id = user?.id ?? "No UID"; // Fetching the UID
 
     void _logout() async {
       await _authService.signOut();
@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: ProfileDrawer(name: name, email: email),
+      drawer: ProfileDrawer(name: name, email: personalemail),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -72,7 +72,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              "Email: $email",
+              "Email: $personalemail",
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black54,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "UID: $user_id", // Displaying the UID
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 16,
@@ -89,11 +98,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               onPressed: () {
-                Get.to(QRProcessingScreen());
+                debugPrint(
+                    "🚀 Navigating to QRProcessingScreen with user_id: $user_id");
+                Get.to(() => QRProcessingScreen(),
+                    arguments: {"user_id": user_id});
               },
               child: const Text(
                 "Scan From Here",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
             ),
           ],

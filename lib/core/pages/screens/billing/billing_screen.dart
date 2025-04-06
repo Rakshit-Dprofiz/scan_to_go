@@ -685,7 +685,7 @@ class BillingScreen extends StatelessWidget {
                     var item = controller.items[index];
                     return _buildItemTile(
                       item["item"],
-                      item["price"],
+                       (item["price"] as num).toDouble(),
                       item["quantity"],
                     );
                   },
@@ -699,7 +699,7 @@ class BillingScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () {
-                    // Get.to(PaymentScreen(title: '',));
+                    Get.to(PaymentScreen());
                   },
                   child: const Text("Proceed to Payment", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),

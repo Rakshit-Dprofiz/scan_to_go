@@ -1,4 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ✅ Add this line for internet access -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Check network connectivity before proceeding -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <!-- Optional: Required if your app uses Bluetooth (Razorpay UPI Auto-read feature) -->
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <!-- If you're logging Razorpay SDK info for debug -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
+
+
+
+
     <application
         android:label="Trolleze"
         android:name="${applicationName}"
@@ -30,6 +47,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Permissions for storage access -->
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

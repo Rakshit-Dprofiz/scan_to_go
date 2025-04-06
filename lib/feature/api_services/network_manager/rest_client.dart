@@ -82,7 +82,8 @@ import 'package:http/http.dart' as http;
 import 'package:scan_to_go/feature/api_services/model/user_list_in_object.dart';
 
 class RestClient {
-  static Future<CartListInObject> getCartListInObject(String trollyId) async {
+
+/*  static Future<CartListInObject> getCartListInObject(String trollyId) async {
     final String url = "https://smapca.onrender.com/cart/$trollyId"; // Updated URL
 
     try {
@@ -104,7 +105,7 @@ class RestClient {
     } catch (error) {
       throw Exception("Error fetching cart: $error");
     }
-  }
+  }*/
 
   // Updated method to send QR data to the backend
   static Future<void> sendQrData(String trollyId, String encrypted_string) async {
@@ -116,6 +117,35 @@ class RestClient {
 
     try {
       print("Sending QR Data to: $url");
+      print("Request Body: ${json.encode(requestBody)}");
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-type": "application/json"},
+        body: json.encode(requestBody),
+      );
+
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to send QR data: ${response.body}");
+      }
+    } catch (error) {
+      throw Exception("Error sending QR data: $error");
+    }
+  }
+
+  // Updated method to Payment id data to the backend
+  static Future<void> sendPaymentData(String orderId, String paymentId) async {
+    final String url = "https://smapca.onrender.com/api/payments/update-payment-status"; // Updated API endpoint
+    final Map<String, String> requestBody = {
+      "orderId": orderId,
+      "paymentId": paymentId,
+    };
+
+    try {
+      print("Sending Payment Data to: $url");
       print("Request Body: ${json.encode(requestBody)}");
 
       final response = await http.post(
