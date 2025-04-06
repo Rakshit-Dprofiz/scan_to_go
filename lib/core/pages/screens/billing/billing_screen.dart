@@ -699,8 +699,25 @@ class BillingScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () {
-                    Get.to(PaymentScreen());
+                    final receipt = {
+                      "order_id": controller.orderId.value,
+                      "total": controller.total.value,
+                      "items": controller.items,
+                      "datetime": controller.datetime.value,
+                      // You can include more if needed
+                    };
+
+                    Get.to(
+                          () => PaymentScreen(
+                        orderId: controller.orderId.value,
+                        items: controller.items.cast<Map<String, dynamic>>().toList(),
+                        amount: controller.total.value,
+                      ),
+                      arguments: {"current_receipt": receipt}, // ✅ Send safely
+                    );
                   },
+
+
                   child: const Text("Proceed to Payment", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ),

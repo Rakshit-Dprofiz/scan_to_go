@@ -1052,6 +1052,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
 // working code
 
 // // PaymentScreen.dart
+
+
+
+
+// 6/4/25
+/*
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -1109,11 +1115,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ElevatedButton(
               onPressed: () {
                 if (amount > 0) {
-                  // _razorpayService.openPaymentGateway(amount);
+                  _razorpayService.openPaymentGateway(amount);
 
 
-                  // String orderId = billingController.orderId.value;
-                  //
+                  String orderId = billingController.orderId.value;
                   // _razorpayService.openPaymentGateway(amount, orderId);
 
 
@@ -1157,3 +1162,96 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 }
+*/
+
+
+// lib/feature/payment_screen.dart
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:scan_to_go/feature/supabase_service.dart';
+import '../payment_history/page/payment_history_screen.dart';
+import 'services/controllers/payment_controller.dart';
+
+class PaymentScreen extends StatefulWidget {
+  final double amount;
+  final String orderId;
+  final List<Map<String, dynamic>> items;
+
+  const PaymentScreen({
+    Key? key,
+    required this.amount,
+    required this.orderId,
+    required this.items,
+  }) : super(key: key);
+
+  @override
+  State<PaymentScreen> createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  late RazorpayService _razorpayService;
+  final SupabaseService _supabaseService = SupabaseService();
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpayService = RazorpayService(onPaymentSuccess: _handlePaymentSuccess);
+  }
+
+  /// ✅ Unified payment success handler
+  void _handlePaymentSuccess(String paymentId) async {
+    print("✅ Razorpay Payment Success! ID: $paymentId");
+
+    try {
+      print("📥 Inserting order into Supabase...");
+      await _supabaseService.insertCartData(
+        orderId: widget.orderId,
+        items: widget.items,
+        total: widget.amount,
+        datetime: DateTime.now().toIso8601String(),
+      );
+      print("✅ Order inserted successfully.");
+
+      print("🔍 Fetching billing data from Supabase...");
+      final billingData = await _supabaseService.getBillingHistoryByUser(widget.orderId); // 🔁 Fixed line
+
+      if (billingData != null) {
+        print("📦 Billing data retrieved. Navigating to PaymentHistoryScreen...");
+        Get.to(() => PaymentHistoryScreen(), arguments: {
+          'current_receipt': billingData,
+        });
+      } else {
+        print("⚠️ No billing data found for order_id: ${widget.orderId}");
+        Get.snackbar("Error", "Payment saved, but billing info not found.");
+      }
+    } catch (e) {
+      print("❌ Error during payment handling: $e");
+      Get.snackbar("Error", "Something went wrong during payment.");
+    }
+  }
+
+  @override
+  void dispose() {
+    _razorpayService.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Proceed to Pay")),
+      body: Center(
+        child: ElevatedButton.icon(
+          onPressed: () {
+            print("💰 Opening Razorpay payment gateway...");
+            _razorpayService.openPaymentGateway(widget.amount);
+          },
+          icon: const Icon(Icons.payment),
+          label: const Text("Pay Now"),
+        ),
+      ),
+    );
+  }
+}
+

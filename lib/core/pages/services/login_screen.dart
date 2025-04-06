@@ -104,18 +104,22 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      // backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.android,
-                  size: 100,
+                Image.asset(
+                  // 'assets/logo.png',
+                  'assets/logo.jpg',
+                  width: 200,
+                  height: 200,
                 ),
-                const SizedBox(height: 75),
+
+                // const SizedBox(height: 75),
                 const Text(
                   'HELLO AGAIN!',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

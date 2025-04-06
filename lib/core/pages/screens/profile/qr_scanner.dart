@@ -1294,7 +1294,9 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
 // }
 //
 
-import 'dart:convert';
+
+// 6/4/25
+/*import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
@@ -1489,4 +1491,210 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
       ),
     );
   }
+}*/
+// 6/4/25
+
+
+// 📁 qr_processing_screen.dart
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
+import 'package:scan_to_go/core/pages/screens/billing/billing_screen.dart';
+import '../../../../feature/api_services/network_manager/http_helper.dart';
+import '../../../../feature/supabase_service.dart';
+
+class QRProcessingScreen extends StatefulWidget {
+  const QRProcessingScreen({super.key});
+
+  @override
+  QRProcessingScreenState createState() => QRProcessingScreenState();
 }
+
+class QRProcessingScreenState extends State<QRProcessingScreen> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  QRViewController? controller;
+  bool isLoading = false;
+  String? actualCode;
+  String? trolly_id;
+  String? encrypted_string;
+  String? user_id;
+  int lastScanTime = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    user_id = Get.arguments?["user_id"];
+    debugPrint("👤 Received User ID in QRProcessingScreen: $user_id");
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  void _onQRViewCreated(QRViewController qrController) {
+    controller = qrController;
+    controller?.scannedDataStream.listen((scanData) {
+      final currentTime = DateTime.now().millisecondsSinceEpoch;
+
+      if (!isLoading && (currentTime - lastScanTime) > 2000) {
+        lastScanTime = currentTime;
+
+        if (scanData.code == null || scanData.code!.isEmpty) {
+          debugPrint("⚠️ QR Code is empty or invalid.");
+          return;
+        }
+
+        Future.delayed(Duration.zero, () => controller?.pauseCamera());
+        setState(() {
+          actualCode = scanData.code;
+          isLoading = true;
+        });
+
+        debugPrint("✅ Scanned QR Code: $actualCode");
+        _extractQRData(actualCode!);
+        _sendDataToAPI();
+      }
+    });
+  }
+
+  void _extractQRData(String qrData) {
+    debugPrint("🔍 Extracting data from QR Code...");
+
+    List<String> parts = qrData.split(':');
+    if (parts.length >= 2) {
+      trolly_id = parts[0];
+      encrypted_string = parts.sublist(1).join(':');
+      debugPrint("🛒 Extracted Trolly ID: $trolly_id");
+      debugPrint("🔐 Extracted Encoded Data: $encrypted_string");
+    } else {
+      debugPrint("❌ Invalid QR Code format!");
+    }
+  }
+
+  Future<void> _sendDataToAPI() async {
+    if (trolly_id == null || encrypted_string == null || user_id == null) {
+      debugPrint("❌ Error: Missing required data.");
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    String apiUrl = "https://smapca.onrender.com/cart/scan";
+    Map<String, dynamic> requestBody = {
+      "trolly_id": trolly_id,
+      "encrypted_string": encrypted_string,
+      "user_id": user_id,
+    };
+
+    debugPrint("📡 Sending QR data to API...");
+    try {
+      var response = await HttpHelper()
+          .post(url: apiUrl, requestBody: jsonEncode(requestBody));
+
+      if (response != null && response["success"] == true) {
+        debugPrint("✅ API Response: $response");
+
+        final orderId = response["order_id"];
+        final cartData = response["cartData"] ?? {};
+        final items = List<Map<String, dynamic>>.from(cartData["items"] ?? []);
+        final total = (cartData["total"] ?? 0).toDouble();
+        final datetime = cartData["datetime"] ?? "";
+
+        // ✅ Insert into Supabase
+        await SupabaseService().insertCartData(
+          orderId: orderId,
+          items: items,
+          total: total,
+          datetime: datetime,
+        );
+
+        // ✅ Fetch back the inserted data
+        final billingData =
+        await SupabaseService().getBillingHistoryByUser(orderId);
+
+        if (billingData != null) {
+          debugPrint("📄 Billing data retrieved from Supabase");
+
+          // ✅ Navigate to Billing Screen with retrieved data
+          Get.to(() => BillingScreen(), arguments: {
+            "trolly_id": trolly_id,
+            "order_id": billingData["order_id"] ?? "N/A",
+            "items": billingData["items"] ?? [],
+            "total": (billingData["total"] ?? 0).toDouble(),
+            "datetime": billingData["datetime"] ?? "N/A",
+          });
+        } else {
+          debugPrint("❌ Failed to fetch billing data from Supabase.");
+        }
+      } else {
+        debugPrint("❌ API call failed or returned invalid response.");
+      }
+    } catch (e) {
+      debugPrint("❌ API Error: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('QR Scanner'),
+        centerTitle: true,
+        backgroundColor: Colors.green,
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Expanded(
+                flex: 5,
+                child: Container(
+                  margin: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.green, width: 2),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: QRView(key: qrKey, onQRViewCreated: _onQRViewCreated),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      actualCode ?? 'Scan a QR code',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.6),
+              child: const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
