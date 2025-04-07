@@ -80,15 +80,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              "UID: $user_id", // Displaying the UID
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-              ),
-            ),
-            const SizedBox(height: 30),
+            // Text(
+            //   "UID: $user_id", // Displaying the UID
+            //   textAlign: TextAlign.center,
+            //   style: const TextStyle(
+            //     fontSize: 16,
+            //     color: Colors.black54,
+            //   ),
+            // ),
+            // const SizedBox(height: 30),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.teal,

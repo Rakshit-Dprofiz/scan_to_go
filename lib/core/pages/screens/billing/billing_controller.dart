@@ -728,7 +728,7 @@ class BillingController extends GetxController {
 
 
 
-
+/*
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
@@ -768,6 +768,50 @@ class BillingController extends GetxController {
       debugPrint("❌ Error: No billing data received.");
     }
   }
-}
+}*/
 
+import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
+
+class BillingController extends GetxController {
+  var trollyId = "".obs;
+  var orderId = "".obs;
+  var datetime = "".obs;
+  var total = 0.0.obs;
+  var items = [].obs; // Each item should include: item, price, quantity
+  var isLoading = true.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadBillingData();
+  }
+
+  /// Loads billing data from arguments passed by QRProcessingScreen
+  void _loadBillingData() {
+    var args = Get.arguments;
+    if (args != null) {
+      trollyId.value = args["trolly_id"] ?? "N/A";
+      orderId.value = args["order_id"] ?? "N/A";
+      datetime.value = args["datetime"] ?? "N/A";
+      total.value = (args["total"] as num).toDouble();
+      items.value = args["items"] ?? [];
+
+      // Debug log for better traceability
+      debugPrint("📄 Billing Data Loaded:");
+      debugPrint("Trolly ID: ${trollyId.value}");
+      debugPrint("Order ID: ${orderId.value}");
+      debugPrint("Date & Time: ${datetime.value}");
+      debugPrint("Total: ₹${total.value}");
+      debugPrint("Items:");
+      for (var item in items) {
+        debugPrint("➡ ${item['item']} | ₹${item['price']} x ${item['quantity']}");
+      }
+
+      isLoading.value = false;
+    } else {
+      debugPrint("❌ Error: No billing data received.");
+    }
+  }
+}
 

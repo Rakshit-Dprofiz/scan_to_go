@@ -67,7 +67,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo.jpg"
+  image_path: "assets/app_logo.jpg"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -92,6 +92,7 @@ flutter:
      - assets/google_logo.png
      - assets/logo.jpg
      - assets/logo.png
+     - assets/app_logo.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

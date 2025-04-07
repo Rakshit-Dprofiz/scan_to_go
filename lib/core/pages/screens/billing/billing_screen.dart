@@ -649,6 +649,7 @@ class _BillingScreenState extends State<BillingScreen> {
 
 
 
+/*
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../payment_screen/payment_screen.dart';
@@ -744,6 +745,170 @@ class BillingScreen extends StatelessWidget {
         title: Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         subtitle: Text("💵 Price: ₹${price.toStringAsFixed(2)}  |  🛒 Quantity: $quantity"),
       ),
+    );
+  }
+}*/
+
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../payment_screen/payment_screen.dart';
+import 'billing_controller.dart';
+
+class BillingScreen extends StatelessWidget {
+  final BillingController controller = Get.put(BillingController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        title: const Text("Bill Summary"),
+        backgroundColor: Colors.teal,
+        centerTitle: true,
+        elevation: 4,
+      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Card container for billing details
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Order Date & Time
+                    Text(
+                      "Order Time: ${controller.datetime.value}",
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                    // Order ID
+                    Text(
+                      "Order ID: ${controller.orderId.value}",
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                    // const SizedBox(height: 6),
+
+                    const SizedBox(height: 12),
+
+                    const Text(
+                      "Product Items:",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // List of items with quantity and total per item
+                    ...controller.items.map((item) {
+                      final String itemName = item['item'] ?? '';
+                      final double price = (item['price'] as num).toDouble();
+                      final int quantity = item['quantity'] ?? 1;
+                      final double total = price * quantity;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "$itemName (x$quantity)",
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            Text(
+                              "₹${total.toStringAsFixed(2)}",
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+
+                    const Divider(height: 24, thickness: 1),
+
+                    // Total Amount
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Total Amount",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "₹${controller.total.value.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // Proceed to Pay button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 2,
+                  ),
+                  onPressed: () {
+                    final receipt = {
+                      "order_id": controller.orderId.value,
+                      "total": controller.total.value,
+                      "items": controller.items,
+                      "datetime": controller.datetime.value,
+                    };
+
+                    Get.to(
+                          () => PaymentScreen(
+                        orderId: controller.orderId.value,
+                        items: controller.items.cast<Map<String, dynamic>>().toList(),
+                        amount: controller.total.value,
+                      ),
+                      arguments: {"current_receipt": receipt},
+                    );
+                  },
+                  child: const Text(
+                    "Proceed To Pay",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }
