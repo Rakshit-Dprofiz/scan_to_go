@@ -750,6 +750,7 @@ class BillingScreen extends StatelessWidget {
 }*/
 
 
+/*
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../payment_screen/payment_screen.dart';
@@ -764,7 +765,7 @@ class BillingScreen extends StatelessWidget {
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         title: const Text("Bill Summary"),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.orange,
         centerTitle: true,
         elevation: 4,
       ),
@@ -871,7 +872,7 @@ class BillingScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
+                    backgroundColor:Colors.orange,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -900,7 +901,189 @@ class BillingScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+}*/
+
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import '../payment_screen/services/controllers/payment_controller.dart';
+import 'billing_controller.dart';
+
+class BillingScreen extends StatelessWidget {
+  final BillingController controller = Get.put(BillingController());
+
+  BillingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        title: const Text("Bill Summary"),
+        backgroundColor: Colors.orange,
+        centerTitle: true,
+        elevation: 4,
+      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(
+            child: Lottie.asset(
+              'assets/animation/Animation - 1744107700278.json',
+              width: 150,
+              height: 150,
+              fit: BoxFit.contain,
+            ),
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Card container for billing details
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Order Time: ${controller.datetime.value}",
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                    Text(
+                      "Order ID: ${controller.orderId.value}",
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Product Items:",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+
+                    ...controller.items.map((item) {
+                      final String itemName = item['item'] ?? '';
+                      final double price = (item['price'] as num).toDouble();
+                      final int quantity = item['quantity'] ?? 1;
+                      final double total = price * quantity;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "$itemName (x$quantity)",
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            Text(
+                              "₹${total.toStringAsFixed(2)}",
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+
+                    const Divider(height: 24, thickness: 1),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Total Amount",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "₹${controller.total.value.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              // Proceed to Pay button (calls Razorpay directly)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 2,
+                  ),
+                  onPressed: () {
+                    final receipt = {
+                      "order_id": controller.orderId.value,
+                      "total": controller.total.value,
+                      "items": controller.items,
+                      "datetime": controller.datetime.value,
+                    };
+
+                    // ✅ Initialize Razorpay and open payment gateway directly
+                    final razorpayService = RazorpayService(
+                      onPaymentSuccess: (paymentId) {
+                        print("🟢 Payment Success Callback triggered in BillingScreen!");
+
+                        final newReceipt = {
+                          "payment_id": paymentId,
+                          "order_id": controller.orderId.value,
+                          "total": controller.total.value,
+                          "items": controller.items,
+                          "datetime": DateTime.now().toIso8601String(),
+                        };
+
+                        // ✅ Navigate to PaymentHistory with current receipt
+                        Get.offAllNamed("/payment-history", arguments: {
+                          "current_receipt": newReceipt,
+                        });
+                      },
+                    );
+
+                    // 🔥 Open Razorpay directly with the amount
+                    razorpayService.openPaymentGateway(controller.total.value);
+                  },
+                  child: const Text(
+                    "Proceed To Pay",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -914,3 +1097,4 @@ class BillingScreen extends StatelessWidget {
 }
 
 
+// https://lottie.host/117b1bc9-ab3d-4911-9841-4f00c785873c/PMR0qb6905.lottie

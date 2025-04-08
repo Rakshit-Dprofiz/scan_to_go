@@ -1499,6 +1499,7 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:scan_to_go/core/pages/screens/billing/billing_screen.dart';
 import '../../../../feature/api_services/network_manager/http_helper.dart';
@@ -1649,7 +1650,7 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
       appBar: AppBar(
         title: const Text('QR Scanner'),
         centerTitle: true,
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.orange,
       ),
       body: Stack(
         children: [
@@ -1661,7 +1662,7 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
                   margin: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.green, width: 2),
+                    border: Border.all(color: Colors.orange, width: 2),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -1688,9 +1689,14 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
           if (isLoading)
             Container(
               color: Colors.black.withOpacity(0.6),
-              child: const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              ),
+              child: Center(
+                child: Lottie.asset(
+                  'assets/animation/loader.json.json',
+                  width: 300,
+                  height: 300,
+                  fit: BoxFit.contain,
+                ),
+              )
             ),
         ],
       ),

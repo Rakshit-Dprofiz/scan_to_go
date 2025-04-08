@@ -72,66 +72,6 @@
 // // -------------------------------------------------------------
 
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-class Profile extends StatefulWidget {
-  @override
-  State<Profile> createState() => _ProfileState();
-}
-
-class _ProfileState extends State<Profile> {
-  @override
-  Widget build(BuildContext context) {
-    final user = Supabase.instance.client.auth.currentUser;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.teal,
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 20),
-            Text(
-              'Name: ${user?.userMetadata?['full_name'] ?? 'No Name'}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Email: ${user?.email ?? 'No Email'}',
-              style: TextStyle(fontSize: 16),
-            ),
-            Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  await Supabase.instance.client.auth.signOut();
-                  Get.offAllNamed('/login');
-                },
-                child: Text('Logout'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  textStyle: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
 
 
 // -------------------------------- original ----------------------------------
@@ -1603,3 +1543,188 @@ class _ProfileState extends State<Profile> {
 //     );
 //   }
 // }
+
+
+
+
+/*
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class Profile extends StatefulWidget {
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  @override
+  Widget build(BuildContext context) {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Profile', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.orange,
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20),
+            Text(
+              'Name: ${user?.userMetadata?['full_name'] ?? 'No Name'}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Email: ${user?.email ?? 'No Email'}',
+              style: TextStyle(fontSize: 16),
+            ),
+            Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await Supabase.instance.client.auth.signOut();
+                  Get.offAllNamed('/login');
+                },
+                child: Text('Logout'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.black,
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  textStyle: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+*/
+
+
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class Profile extends StatefulWidget {
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  final user = Supabase.instance.client.auth.currentUser;
+
+  // Function to show dialog for editing user's name
+  void _editNameDialog() {
+    final user = Supabase.instance.client.auth.currentUser;
+    final TextEditingController nameController = TextEditingController(
+      text: user?.userMetadata?['name'] ?? '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Name'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(hintText: "Enter your name"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newName = nameController.text.trim();
+
+              if (newName.isNotEmpty) {
+                try {
+                  // ✅ Step 1: Update metadata
+                  final updatedUser = await Supabase.instance.client.auth.updateUser(
+                    UserAttributes(data: {'name': newName}),
+                  );
+
+                  // ✅ Step 2: Refresh session
+                  await Supabase.instance.client.auth.refreshSession();
+
+                  Navigator.pop(context);
+                  setState(() {}); // Rebuild UI with new data
+
+                  Get.snackbar("Success", "Name updated successfully",
+                      backgroundColor: Colors.green, colorText: Colors.white);
+                } catch (e) {
+                  Get.snackbar("Error", "Failed to update name: $e",
+                      backgroundColor: Colors.red, colorText: Colors.white);
+                }
+              }
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.orange,
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit, color: Colors.white),
+            onPressed: _editNameDialog,
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            Text(
+              'Name: ${user?.userMetadata?['name'] ?? 'No Name'}',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Email: ${user?.email ?? 'No Email'}',
+              style: const TextStyle(fontSize: 16),
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await Supabase.instance.client.auth.signOut();
+                  Get.offAllNamed('/login'); // Navigate back to login screen
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+                child: const Text('Logout'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

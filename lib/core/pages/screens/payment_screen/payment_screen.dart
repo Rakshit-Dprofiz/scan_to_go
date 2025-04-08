@@ -1168,7 +1168,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 // lib/feature/payment_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:scan_to_go/feature/supabase_service.dart';
 import '../payment_history/page/payment_history_screen.dart';
 import 'services/controllers/payment_controller.dart';
@@ -1254,4 +1253,3 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 }
-

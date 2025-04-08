@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 import '../../../auth/auth_service.dart';
+import '../screens/home/home_screen.dart';
 import 'login_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -56,15 +59,38 @@ class _SignInScreenState extends State<SignInScreen> {
   void googleSignUp() async {
     try {
       await authService.googleSignIn();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Google Sign-In Successful!")),
+        );
+
+        // ✅ Navigate to your target screen
+        Get.offAll(() => HomeScreen());
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Google Sign-In Error: $e")),
+        );
+      }
+    }
+  }
+
+
+/*  void googleSignUp() async {
+    try {
+      await authService.googleSignIn();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Google Sign-In Successful!")),
       );
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Google Sign-In Error: $e")),
       );
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

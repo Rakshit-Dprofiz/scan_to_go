@@ -393,7 +393,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: Text("Payment History"),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.orange,
         centerTitle: true,
       ),
       body: Padding(
@@ -451,7 +451,7 @@ class PaymentHistoryCard extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.teal)),
+                      color: Colors.orange)),
             ],
           ),
         ),

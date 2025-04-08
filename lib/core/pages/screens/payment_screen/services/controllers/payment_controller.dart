@@ -576,11 +576,25 @@ class RazorpayService {
 
     // Show success message to the user
     Get.snackbar(
-      "Payment Success",
-      "Transaction ID: $paymentId",
+      "✅ Payment Success",
+      "Click on End Shopping in your cart 🛒",
+      duration: const Duration(seconds: 10),
       backgroundColor: Colors.green,
-      snackPosition: SnackPosition.BOTTOM,
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 200), // 👈 vertical moves it to center-like position
+      borderRadius: 12,
+      isDismissible: false,
+      forwardAnimationCurve: Curves.easeInOut,
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 10,
+          offset: Offset(0, 4),
+        ),
+      ],
     );
+
 
     // Pass the Payment ID back to the caller
     onPaymentSuccess(paymentId);
