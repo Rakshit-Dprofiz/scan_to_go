@@ -573,7 +573,7 @@ class RazorpayService {
     Get.snackbar(
       "✅ Payment Success",
       "Click on End Shopping in your cart 🛒",
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 4),
       backgroundColor: Colors.green,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
