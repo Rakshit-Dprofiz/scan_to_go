@@ -1561,7 +1561,7 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
     });
   }
 
-  void _extractQRData(String qrData) {
+/*  void _extractQRData(String qrData) {
     debugPrint("🔍 Extracting data from QR Code...");
 
     List<String> parts = qrData.split(':');
@@ -1573,7 +1573,52 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
     } else {
       debugPrint("❌ Invalid QR Code format!");
     }
+  }*/
+
+  void _extractQRData(String qrData) {
+    debugPrint("🔍 Extracting data from QR Code...");
+
+    List<String> parts = qrData.split(':');
+    if (parts.length >= 2) {
+      trolly_id = parts[0];
+      encrypted_string = parts.sublist(1).join(':');
+      debugPrint("🛒 Extracted Trolly ID: $trolly_id");
+      debugPrint("🔐 Extracted Encoded Data: $encrypted_string");
+    } else {
+      debugPrint("❌ Invalid QR Code format!");
+      controller?.pauseCamera(); // optional: pause before navigating away
+      _showInvalidQRDialog(); // will close screen after user presses OK
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
+
+
+  void _showInvalidQRDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // user must press OK
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Invalid QR Code"),
+          content: const Text("The scanned QR code is not valid. Please scan again."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // close dialog
+                Get.back(); // exit QRProcessingScreen
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
 
   Future<void> _sendDataToAPI() async {
     if (trolly_id == null || encrypted_string == null || user_id == null) {
@@ -1675,12 +1720,12 @@ class QRProcessingScreenState extends State<QRProcessingScreen> {
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      actualCode ?? 'Scan a QR code',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                    // child: Text(
+                    //   actualCode ?? 'Scan a QR code',
+                    //   textAlign: TextAlign.center,
+                    //   style: const TextStyle(
+                    //       fontSize: 18, fontWeight: FontWeight.bold),
+                    // ),
                   ),
                 ),
               ),

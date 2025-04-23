@@ -915,10 +915,11 @@ class BillingScreen extends StatelessWidget {
 }*/
 
 
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:scan_to_go/core/pages/screens/payment_history/page/payment_history_screen.dart';
 import '../payment_screen/services/controllers/payment_controller.dart';
 import 'billing_controller.dart';
 
@@ -1069,7 +1070,7 @@ class BillingScreen extends StatelessWidget {
                         };
 
                         // ✅ Navigate to PaymentHistory with current receipt
-                        Get.offAllNamed("/payment-history", arguments: {
+                        Get.offAll(() => PaymentHistoryScreen(), arguments: {
                           "current_receipt": newReceipt,
                         });
                       },
@@ -1097,4 +1098,6 @@ class BillingScreen extends StatelessWidget {
 }
 
 
+
 // https://lottie.host/117b1bc9-ab3d-4911-9841-4f00c785873c/PMR0qb6905.lottie
+

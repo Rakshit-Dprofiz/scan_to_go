@@ -282,18 +282,21 @@ class PaymentHistoryCard extends StatelessWidget {
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../../feature/pdf/pdf_receipt_service.dart';
+import '../../../../../feature/pdf_service/pdf_helper.dart';
 
 class PaymentController extends GetxController {
   var paymentHistory = <Map<String, dynamic>>[].obs;
   var paymentReceipt = <Map<String, dynamic>>[].obs; // ✅ Just paid receipt
 
+
   @override
   void onInit() {
     super.onInit();
-    fetchUserPaymentHistory(Supabase.instance.client.auth.currentUser?.id); // ✅ Auto-fetch on load
+    fetchUserPaymentHistory(
+        Supabase.instance.client.auth.currentUser?.id); // ✅ Auto-fetch on load
   }
 
   // ✅ Fetch specific payment receipt by orderId and userId
@@ -331,6 +334,7 @@ class PaymentController extends GetxController {
   }
 
   // ✅ Fetch entire payment history of current user
+  // Modify the fetchUserPaymentHistory method
   Future<void> fetchUserPaymentHistory(String? userId) async {
     if (userId == null) {
       print("⚠️ Cannot fetch history without userId");
@@ -343,11 +347,16 @@ class PaymentController extends GetxController {
         .from('cart')
         .select()
         .eq('user_id', userId)
-        .order('datetime', ascending: false);
+        .order('datetime', ascending: false); // Fetch in descending order (latest first)
 
     if (data.isNotEmpty) {
       print("✅ History fetched: ${data.length} records");
-      paymentHistory.value = data.map((e) {
+
+      final dateFormat = DateFormat("dd-MM-yyyy HH:mm:ss"); // Define the correct date format
+
+      // Ensure data is ordered correctly
+      paymentHistory.value = data
+          .map((e) {
         return {
           'order_id': e['order_id'] ?? "N/A",
           'datetime': e['datetime'] ?? "N/A",
@@ -356,19 +365,27 @@ class PaymentController extends GetxController {
           'payment_status': e['payment_status'] ?? 'N/A',
           'user_id': e['user_id'] ?? "N/A",
         };
-      }).toList();
+      })
+          .toList()
+        ..sort((a, b) {
+          final dateA = dateFormat.parse(a['datetime']);
+          final dateB = dateFormat.parse(b['datetime']);
+          return dateA.compareTo(dateA); // Sort by datetime descending
+        });
+
     } else {
       print("⚠️ No history found for this user.");
       paymentHistory.clear();
     }
   }
 
+
   // ✅ Add new payment
   void addPayment(Map<String, dynamic> payment) async {
     print("📝 Adding payment: $payment");
 
     final response =
-    await Supabase.instance.client.from('cart').insert(payment);
+        await Supabase.instance.client.from('cart').insert(payment);
 
     if (response == null) {
       print("✅ Payment added.");
@@ -399,26 +416,33 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Obx(() => ListView(
-          children: [
-            // ✅ Current receipt section
-            if (controller.paymentReceipt.isNotEmpty) ...[
-              Text("🧾 Current Payment Receipt",
-                  style:
-                  TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              PaymentHistoryCard(payment: controller.paymentReceipt.first),
-              Divider(height: 32),
-            ],
+              children: [
+                // ✅ Current receipt section
+                if (controller.paymentReceipt.isNotEmpty) ...[
+                  Text("🧾 Current Payment Receipt",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  // PaymentHistoryCard(payment: controller.paymentReceipt.first, srNo: ,),
+                  PaymentHistoryCard(payment: controller.paymentReceipt.first, srNo: 0),
+                  Divider(height: 32),
+                ],
 
-            // ✅ Full history section
-            Text("📚 Your Payment History",
-                style:
-                TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            ...controller.paymentHistory.map(
-                    (payment) => PaymentHistoryCard(payment: payment)),
-          ],
-        )),
+                // ✅ Full history section
+                Text("📚 Your Payment History",
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                SizedBox(height: 8),
+                ...controller.paymentHistory.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final payment = entry.value;
+                  return PaymentHistoryCard(
+                    payment: payment,
+                    srNo: index + 1, // So it continues after current receipt
+                  );
+                }).toList(),// So it continues after current receipt
+              ],
+            )),
       ),
     );
   }
@@ -426,10 +450,13 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
 
 class PaymentHistoryCard extends StatelessWidget {
   final Map<String, dynamic> payment;
-  PaymentHistoryCard({required this.payment});
+  final int srNo;
+
+  PaymentHistoryCard({required this.payment, required this.srNo});
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       onTap: () => _showPaymentDetails(context, payment),
       child: Card(
@@ -442,6 +469,9 @@ class PaymentHistoryCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text("Sr. No: $srNo",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+              SizedBox(height: 5),
               Text("Order ID: ${payment['order_id']}",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 5),
@@ -458,78 +488,32 @@ class PaymentHistoryCard extends StatelessWidget {
       ),
     );
   }
-
-/*  void _showPaymentDetails(BuildContext context, Map<String, dynamic> payment) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          title: Text("Payment Details"),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Order ID: ${payment['order_id']}",
-                    style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                SizedBox(height: 5),
-                Text("Order Time: ${payment['datetime']}"),
-                SizedBox(height: 10),
-                Text("Products:",
-                    style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ...(payment['items'] as List? ?? []).map<Widget>((item) {
-                  final itemName = item['item'] ?? item['name'] ?? "Unknown Item";
-                  final quantity = item['quantity'] ?? 1;
-                  final price = item['price'] as num? ?? 0;
-
-                  return _buildRow(
-                    "$itemName x$quantity",
-                    "₹${(price * quantity).toStringAsFixed(2)}",
-                  );
-                }).toList(),
-
-                Divider(),
-                _buildRow("Total Amount", "₹${payment['total']}",
-                    isBold: true, fontSize: 18),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text("Close"),
-            ),
-          ],
-        );
-      },
-    );
-  }*/
-
+  
   void _showPaymentDetails(BuildContext context, Map<String, dynamic> payment) {
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           title: Text("Payment Details"),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Order ID: ${payment['order_id']}",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 SizedBox(height: 5),
                 Text("Order Time: ${payment['datetime']}"),
                 SizedBox(height: 10),
                 Text("Products:",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ...(payment['items'] as List? ?? []).map<Widget>((item) {
-                  final itemName = item['item'] ?? item['name'] ?? "Unknown Item";
+                  final itemName =
+                      item['item'] ?? item['name'] ?? "Unknown Item";
                   final quantity = item['quantity'] ?? 1;
                   final price = item['price'] as num? ?? 0;
 
@@ -549,32 +533,42 @@ class PaymentHistoryCard extends StatelessWidget {
               onPressed: () => Navigator.pop(ctx),
               child: Text("Close"),
             ),
-            // ElevatedButton.icon(
-            //   icon: Icon(Icons.download),
-            //   label: Text('Download'),
-            //   onPressed: () async {
-            //     Navigator.pop(ctx); // Close the alert before generating
-            //     print("[PaymentDetails] 📄 Downloading receipt for: ${payment['order_id']}");
-            //
-            //     try {
-            //       await PDFReceiptService.generateAndSaveReceipt(
-            //         orderId: payment['order_id'],
-            //         items: List<Map<String, dynamic>>.from(payment['items']),
-            //         total: double.tryParse(payment['total'].toString()) ?? 0,
-            //         dateTime: payment['datetime'],
-            //         userId: payment['user_id'] ?? "N/A", // fallback if null
-            //       );
-            //     } catch (e) {
-            //       print("[PaymentDetails] ❌ Failed to generate PDF: $e");
-            //     }
-            //   },
-            // ),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.download),
+              label: const Text('Download'),
+              onPressed: () async {
+                Navigator.pop(ctx); // Close the alert dialog (if shown)
+
+                final orderId = payment['order_id']?.toString() ?? 'N/A';
+                final dateTime = payment['datetime']?.toString() ?? DateTime.now().toIso8601String();
+                final userId = payment['user_id']?.toString() ?? 'N/A';
+                final total = double.tryParse(payment['total']?.toString() ?? '0') ?? 0.0;
+                final items = (payment['items'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+
+                // ✅ Fetch the current logged-in user and get the name
+                final user = Supabase.instance.client.auth.currentUser;
+                final String name = user?.userMetadata?['name'] ?? "No Name";
+
+                print("[DownloadReceipt] 📥 Downloading receipt for: $orderId");
+
+                try {
+                  await PDFReceiptService.createReceipt(
+                    orderId: orderId,
+                    items: items,
+                    total: total,
+                    dateTime: dateTime,
+                    name: name,
+                  );
+                } catch (e) {
+                  print("[DownloadReceipt] ❌ Error generating receipt: $e");
+                }
+              },
+            )
           ],
         );
       },
     );
   }
-
 
   Widget _buildRow(String label, String value,
       {bool isBold = false, double fontSize = 16}) {
@@ -597,4 +591,3 @@ class PaymentHistoryCard extends StatelessWidget {
     );
   }
 }
-

@@ -318,8 +318,6 @@ class PaymentController extends GetxController {
 //   }
 // }
 
-
-
 /*
 
 import 'package:flutter/material.dart';
@@ -431,8 +429,6 @@ class RazorpayService {
 }
 */
 
-
-
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -522,7 +518,6 @@ class RazorpayService {
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -582,7 +577,9 @@ class RazorpayService {
       backgroundColor: Colors.green,
       colorText: Colors.white,
       snackPosition: SnackPosition.TOP,
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 200), // 👈 vertical moves it to center-like position
+      margin: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 200), // 👈 vertical moves it to center-like position
       borderRadius: 12,
       isDismissible: false,
       forwardAnimationCurve: Curves.easeInOut,
@@ -594,7 +591,6 @@ class RazorpayService {
         ),
       ],
     );
-
 
     // Pass the Payment ID back to the caller
     onPaymentSuccess(paymentId);
@@ -631,4 +627,3 @@ class RazorpayService {
     _razorpay.clear();
   }
 }
-

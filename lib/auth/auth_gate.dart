@@ -67,9 +67,9 @@ class AuthGate extends StatelessWidget {
 
         } else {
           // print("User Signed Out or Not Signed In");
-          return const LoginScreen();
+          // return const LoginScreen();
           // return  PaymentHistoryScreen();
-          // return  BillingScreen();
+          return  HomeScreen();
         }
       },
     );

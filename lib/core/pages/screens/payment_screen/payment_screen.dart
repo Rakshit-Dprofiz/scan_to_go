@@ -1199,8 +1199,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   /// ✅ Unified payment success handler
-  void _handlePaymentSuccess(String paymentId) async {
-    print("✅ Razorpay Payment Success! ID: $paymentId");
+  void _handlePaymentSuccess(String _) async {
+    print("✅ Razorpay Payment Success!");
 
     try {
       print("📥 Inserting order into Supabase...");
@@ -1213,17 +1213,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
       print("✅ Order inserted successfully.");
 
       print("🔍 Fetching billing data from Supabase...");
-      final billingData = await _supabaseService.getBillingHistoryByUser(widget.orderId); // 🔁 Fixed line
+      final billingData = await _supabaseService.getBillingHistoryByUser(widget.orderId);
 
-      if (billingData != null) {
+      if (billingData != null && mounted) {
         print("📦 Billing data retrieved. Navigating to PaymentHistoryScreen...");
-        Get.to(() => PaymentHistoryScreen(), arguments: {
+
+        /// ✅ FIXED: Direct await navigation instead of postFrameCallback
+        await Future.delayed(Duration(milliseconds: 300)); // Optional delay to ensure smooth transition
+        Get.off(() => PaymentHistoryScreen(), arguments: {
           'current_receipt': billingData,
         });
+
       } else {
         print("⚠️ No billing data found for order_id: ${widget.orderId}");
         Get.snackbar("Error", "Payment saved, but billing info not found.");
       }
+
     } catch (e) {
       print("❌ Error during payment handling: $e");
       Get.snackbar("Error", "Something went wrong during payment.");
